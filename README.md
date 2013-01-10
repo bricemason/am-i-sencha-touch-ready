@@ -26,3 +26,8 @@ Execution
 2. Make the bash script executable by issuing `chmod 755 ./am-i-sencha-touch-ready`
 3. Run the script `./am-i-sencha-touch-ready`
 4. View the report in a web browser at `./am-i-sencha-touch-ready-report.html`
+
+Resources
+---------
+
+Watch the [screencast](https://vimeo.com/57116845) on how to use the script.
