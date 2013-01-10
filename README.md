@@ -25,3 +25,4 @@ Execution
 1. Download and extract the project
 2. Make the bash script executable by issuing `chmod 755 ./am-i-sencha-touch-ready`
 3. Run the script `./am-i-sencha-touch-ready`
+4. View the report in a web browser at `./am-i-sencha-touch-ready-report.html`
