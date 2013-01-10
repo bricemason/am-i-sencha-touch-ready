@@ -1,0 +1,423 @@
+#!/bin/bash
+#
+#  am-i-sencha-touch-ready
+#
+#  Checks your system to determine if you have all the tools
+#  necessary to do Sencha Touch development
+#
+#  by Brice Mason
+#
+#  http://www.bricemason.com
+#  http://www.twitter.com/bricemason
+#  http://www.github.com/bricemason
+#  http://www.vimeo.com/bricemason
+#  brice@bricemason.com
+
+# directory of this script
+THISDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+HTMLREPORT="$THISDIR/am-i-sencha-touch-ready-report.html"
+
+HASSENCHAFRAMEWORK=0
+HASSENCHACMD=0
+HASJAVA=0
+HASRUBY=0
+HASSASS=0
+HASCOMPASS=0
+HASANT=0
+
+SCORE=0
+
+SENCHAFRAMEWORKS=""
+
+function r {
+   echo $@ >> $HTMLREPORT
+}
+
+
+function header {
+   echo
+   echo "===================================================="
+   echo "Am I Sencha Touch Ready? by Brice Mason"
+   echo 
+   echo "http://www.github.com/bricemason/am-i-sencha-touch-ready/"
+   echo "===================================================="
+   echo
+
+   echo "The first step will take some time since it's searching your entire system."
+   echo
+
+   echo "<!doctype html>" > $HTMLREPORT
+   r '<html>'
+   r '<head>'
+      r '<title>Am I Sencha Touch Ready?</title>'
+      r '<style type="text/css">'
+         r 'html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font:inherit;font-size:100%;vertical-align:baseline}html{line-height:1}ol,ul{list-style:none}table{border-collapse:collapse;border-spacing:0}caption,th,td{text-align:left;font-weight:normal;vertical-align:middle}q,blockquote{quotes:none}q:before,q:after,blockquote:before,blockquote:after{content:"";content:none}a img{border:none}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary{display:block}* html{font-size:100%}html{font-size:16px;line-height:1.5em}html,body{font-family:helvetica,arial,sans-serif;background-color:#ddd}h1,h2,h3{letter-spacing:-0.08em;font-weight:bold;line-height:1em}h1{font-size:3em}h2{font-size:2em}p,ul,ol,pre{margin:20px 0px}ol{list-style-type:decimal;margin-left:20px}a,a:visited,a:hover{color:#3378A5}em{font-style:italic}strong{font-weight:bold}pre{font-family:courier;background-color:#ddd;border:1px solid #999;padding:30px;white-space:pre-wrap}code{background-color:#ddd;border:1px solid #999;font-family:courier}.pass,.fail{text-transform:uppercase;font-size:1.5em;padding:10px;color:#fff}.pass{background-color:#009900}.fail{background-color:#990000}.score{border:1px solid black;background-color:#ddd;font-size:4em;font-weight:bold;line-height:1em;position:absolute;top:190px;right:30px;padding:30px;letter-spacing:.25em}.score-0,.score-1,.score-2{background-color:#990000;color:#fff}.score-3,.score-4{background-color:orange;color:#000}.score-5,.score-6{background-color:yellow;color:#000}.score-7{background-color:#009900;color:#fff}#content{*zoom:1;max-width:59em;_width:59em;margin-left:auto;margin-right:auto;padding-left:1em;padding-right:1em;position:relative;padding:30px;background-color:#fff}#content:after{content:"";display:table;clear:both}'
+      r '</style>'
+   r '</head>'
+   r '<body>'
+   r '<div id="content">'
+   r "<h1>Am I Sencha Touch Ready?</h1>"
+
+   r '<p>'
+      r '<em>Am I Sencha Touch Ready?</em> is a script used to analyze and report the capabilities of your system.'
+      r "A full report is provided below that will explain all that you need to get up and running with Sencha Touch today."
+   r '</p>'
+
+   r '<p>'
+      r "To contact Brice Mason, feel free to use any/all of the following methods:"
+   r '</p>'
+
+   r "<ul>"
+   r '<li><a href="http://www.github.com/bricemason/">Github</a></li>'
+   r '<li><a href="http://www.twitter.com/bricemason">Follow Me on Twitter</a></li>'
+   r '<li><a href="http://www.vimeo.com/bricemason/">Follow Me on Vimeo</a></li>'
+   r '<li><a href="http://www.bricemason.com/">My Website</a></li>'
+   r '<li><a href="mailto:brice@bricemason.com">Email Me</a></li>'
+   r "</ul>"
+
+   r '<p>'
+      r "This project has absolutely no affiliation with Sencha. I'm just a guy having some fun and trying to help out."
+   r '</p>'
+
+   r "<p>Report Generated: `date`</p>"
+}
+
+
+
+function checkSenchaTouchFramework {
+   local f
+   local d
+   local v
+
+   echo -n "Checking for at least 1 copy of the Sencha Touch framework (2.1 or above)..."
+   
+   for f in $(find -x / -name sencha-touch.js 2> /dev/null)
+   do
+      d=`dirname $f`
+      
+      if [ -f "$d/release-notes.html" ] && [ -f "$d/version.txt" ]; then
+         v=`cat $d/version.txt`
+
+         if [[ $v =~ 2\.[^0].* ]]; then
+            SENCHAFRAMEWORKS="$SENCHAFRAMEWORKS $d"
+         fi
+      fi
+   done
+
+   SENCHAFRAMEWORKS=($SENCHAFRAMEWORKS)
+
+   if [ ${#SENCHAFRAMEWORKS[@]} -gt 0 ]; then
+      echo "PASS"
+      HASSENCHAFRAMEWORK=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   # ----- html report -----
+
+   r '<h2>Step 1: Sencha Touch Framework (2.1 or above)</h2>'
+
+   r '<p>'
+      r "The Sencha Touch framework contains all the source code and supporting resources you'll need to create Sencha Touch applications."
+      r "This step will pass if at least one directory is found that looks like a possible match for a Sencha Touch framework of at least version 2.1"
+   r '</p>'
+
+   if [ $HASSENCHAFRAMEWORK -eq 1 ]; then
+      r '<h3 class="pass">pass</h3>'
+
+      r '<p>The Sencha Touch framework was found in these locations:</p>'
+
+      r '<ul>'
+      for f in "${SENCHAFRAMEWORKS[@]}"
+      do
+         r "<li>$f</li>"
+      done
+      r '</ul>'
+   else
+      r '<h3 class="fail">fail</h3>'
+
+      r '<p>'
+         r "A proper version of the Sencha Touch framework could not be found on your system. To correct this:"
+         r '<ol>'
+            r '<li><a href="http://www.sencha.com/products/touch/download/">Download Sencha Touch</a></li>'
+            r '<li>Extract the contents of the download to your file system</li>'
+         r '</ol>'
+      r '</p>'
+   fi
+}
+
+
+
+function checkSenchaCmd {
+   echo -n "Checking for Sencha Cmd 3.0..."
+
+   if [ -n "$SENCHA_CMD_3_0_0" ]; then
+      echo "PASS"
+      HASSENCHACMD=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   # ----- html report -----
+
+   r '<h2>Step 2: Sencha Cmd 3.0</h2>'
+   r '<p>'
+      r "Sencha Cmd 3.0 is used in conjunction with Sencha Touch 2.1 and above. It's purpose ranges from application scaffolding, to building, to deployment."
+      r "Be aware that Sencha SDK Tools is completely different from Sencha Cmd and will not work with Sencha Touch 2.1 and above."
+      r "Remember Sencha SDK Tools is for Sencha Touch 2.0 and Sencha Cmd 3.0 is for Sencha Touch 2.1 and above."
+   r '</p>'
+
+   if [ $HASSENCHACMD -eq 1 ]; then
+      r '<h3 class="pass">pass</h3>'
+
+      r '<p>Sencha Cmd 3.0 was found here:</p>'
+
+      r '<ul>'
+         r "<li>$SENCHA_CMD_3_0_0</li>"
+      r '</ul>'
+   else
+      r '<h3 class="fail">fail</h3>'
+
+      r '<p>'
+         r "Sencha Cmd 3.0 was not found on your system. To correct this:"
+         r '<ol>'
+            r '<li><a href="http://www.sencha.com/products/sencha-cmd/download">Download Sencha Cmd 3.0</a></li>'
+            r '<li>Execute the installer</li>'
+            r '<li>Close all open terminals</li>'
+            r '<li>Open a new terminal and execute the command <code>sencha</code></li>'
+            r '<li>You should now see help output from Sencha Cmd 3.0.'
+         r '</ol>'
+      r '</p>'
+   fi
+}
+
+
+
+function checkJava {
+   echo -n "Checking for Java..."
+
+   if [ -n "`whereis java`" ] && [ -n "`whereis javac`" ]; then
+      echo "PASS"
+      HASJAVA=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   # ----- html report -----
+
+   r '<h2>Step 3: Java</h2>'
+   r '<p>'
+      r "Java is required by Sencha Cmd 3.0 to run."
+   r '</p>'
+
+   if [ $HASJAVA -eq 1 ]; then
+      r '<h3 class="pass">pass</h3>'
+
+      r "<p>Java was found at <code>`whereis java`</code>. The version output is:</p>"
+
+      r "<pre>"
+         r "`java -version 2>&1`"
+      r "</pre>"
+   else
+      r "<h3 class='fail'>fail</h3>"
+
+      r "<p>"
+         r "Java was not found on your system. To correct this:"
+         r "<ol>"
+            r "<li><a href='http://www.oracle.com/technetwork/java/javase/downloads/index.html'>Download</a> and install the latest Java JDK</li>"
+            r "<li>Ensure it is included in your system PATH.</li>"
+         r "</ol>"
+      r "</p>"
+   fi
+}
+
+
+
+function checkRuby {
+   echo -n "Checking for Ruby..."
+
+   if [ -n "`whereis ruby`" ]; then
+      echo "PASS"
+      HASRUBY=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   echo -n "Checking for the sass gem..."
+
+   if [ "`gem list sass -i`" == "true" ]; then
+      echo "PASS"
+      HASSASS=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   echo -n "Checking for the compass gem..."
+
+   if [ "`gem list compass -i`" == "true" ]; then
+      echo "PASS"
+      HASCOMPASS=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   # ----- html report -----
+
+   r '<h2>Step 4: Ruby and Supporting Gems</h2>'
+
+   r "<p>"
+      r "Ruby as well as the <code>sass</code> and <code>compass</code> ruby gems are required to build the styles and themes for Sencha Touch applications."
+      r "SASS is an extension to CSS3 and compass is a framework built upon SASS."
+   r "</p>"
+
+   if [ $HASRUBY -eq 1 ]; then
+      r "<h3 class='pass'>pass</h3>"
+
+      r "<p>Ruby was found on your system at <code>`whereis ruby`</code>. The version output is:</p>"
+
+      r "<pre>`ruby -v`</pre>"
+   else
+      r "<h3 class='fail'>fail</h3>"
+
+      r "<p>Ruby was not found on your system. To correct this:</p>"
+
+      r "<ol>"
+         r "<li><a href='http://www.ruby-lang.org/en/downloads/'>Download</a> and install Ruby.</li>"
+      r "</ol>"
+   fi
+
+   if [ $HASSASS -eq 1 ]; then
+      r "<h3 class='pass'>pass</h3>"
+
+      r "<p>The <code>sass</code> gem was found on your system. The version is <code>`gem list sass`</code>"
+   else
+      r "<h3 class='fail'>fail</h3>"
+
+      r "<p>The <code>sass</code> gem was not found on your system. To correct this:</p>"
+
+      r "<ol>"
+         r "<li><a href='http://www.ruby-lang.org/en/downloads/'>Download</a> and install Ruby if necessary.</li>"
+         r "<li>Open a terminal and run the command <code>gem install sass</code></li>"
+      r "</ol>"
+   fi
+
+      r "<p>For more information on SASS visit the <a href='http://www.sass-lang.com/'>SASS site</a></p>"
+
+   if [ $HASCOMPASS -eq 1 ]; then
+      r "<h3 class='pass'>pass</h3>"
+
+      r "<p>The <code>compass</code> gem was found on your system. The version is <code>`gem list compass`</code>"
+   else
+      r "<h3 class='fail'>fail</h3>"
+
+      r "<p>The <code>compass</code> gem was not found on your system. To correct this:</p>"
+
+      r "<ol>"
+         r "<li><a href='http://www.ruby-lang.org/en/downloads/'>Download</a> and install Ruby if necessary.</li>"
+         r "<li>Open a terminal and run the command <code>gem install compass</code></li>"
+      r "</ol>"
+   fi
+
+      r "<p>For more information on Compass visit the <a href='http://www.compass-style.org/'>Compass site</a></p>"
+}
+
+
+
+function checkAnt {
+   echo -n "Checking for Apache Ant..."
+
+   if [ -n "`whereis ant`" ]; then
+      echo "PASS"
+      HASANT=1
+      SCORE=$((SCORE + 1))
+   else
+      echo "FAIL"
+   fi
+
+   # ----- html report -----
+
+   r '<h2>Step 5: Apache Ant</h2>'
+
+   r "<p>"
+      r "Apache Ant is the build system which Sencha Cmd is built upon."
+   r "</p>"
+
+   if [ $HASANT -eq 1 ]; then
+      r "<h3 class='pass'>pass</h3>"
+
+      r "<p>Apache Ant was found on your system. The version is <code>`ant -version`</code>"
+   else
+      r "<h3 class='fail'>fail</h3>"
+
+      r "<p>Apache Ant was not found on your system. To correct this:</p>"
+
+      r "<ol>"
+         r "<li><a href='http://http://ant.apache.org/'>Download</a> and install Apache Ant</li>"
+         r "<li>Ensure it is included in your system PATH</li>"
+      r "</ol>"
+   fi
+
+   r "<p>For more information on Apache Ant visit the <a href='http://ant.apache.org/'>Apache Ant site</a></p>"
+}
+
+
+
+function displayScore {
+   r "<div class='score score-$SCORE'>$SCORE/7</div>"
+
+   echo
+   echo "Results: $SCORE / 7 tests passed"
+
+   echo
+   echo "You can view your report at $HTMLREPORT"
+
+   if [ $SCORE -eq 7 ]; then 
+      r "<h2>You're Ready!</h2>"
+
+      r "<p>"
+         r "If you don't already have a web server running locally to test your apps, a good quick option"
+         r "is <a href='http://www.mamp.info/en/index.html'>MAMP</a>. Also make sure you have a modern"
+         r "web browser such as <a href='http://www.google.com/chrome'>Google Chrome</a>."
+      r "</p>"
+
+      r "<p>"
+         r "Now that you've met all the requirements for developing with Sencha Touch, here's a list of commands"
+         r "to get you started. These commands demonstrate how to create a development version of an app then"
+         r "run a package build. Just start a new terminal and paste these commands in."
+      r "</p>"
+
+      r "<pre>"
+      r "cd ${SENCHAFRAMEWORKS[0]}"
+      r "sencha generate app ReadyApp ~/Desktop/readyApp"
+      r "cd ~/Desktop/readyApp"
+      r "sencha app build package"
+      r "</pre>"
+   fi
+}
+
+
+
+function runReport {
+   header
+   checkSenchaTouchFramework
+   checkSenchaCmd
+   checkJava
+   checkRuby
+   checkAnt
+   displayScore
+
+   r '</div>'
+   r '</body>'
+   r '</html>'
+}
+
+
+
+runReport
